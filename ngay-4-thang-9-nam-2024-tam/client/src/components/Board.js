@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import List from "./List";
 import { DragDropContext } from "react-beautiful-dnd";
 import { Button, Form, Container, Row, Col } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify"; // Import Toast
+import "react-toastify/dist/ReactToastify.css"; // Import Toast styles
 import "./styles/Board.css";
 
 const Board = () => {
@@ -67,6 +69,7 @@ const Board = () => {
         )
       );
     }
+    toast.success("Card moved successfully!");
   };
 
   const addNewList = () => {
@@ -77,6 +80,7 @@ const Board = () => {
     ]);
     setNewListTitle("");
     setIsAddingList(false);
+    toast.success("New list added!"); // Show success toast when a new list is added
   };
 
   return (
@@ -115,7 +119,7 @@ const Board = () => {
                 </div>
               ) : (
                 <Button
-                  variant="outline-primary"
+                  variant="outline-light mt-3"
                   onClick={() => setIsAddingList(true)}
                 >
                   + Add another list
@@ -125,6 +129,17 @@ const Board = () => {
           </Col>
         </Row>
       </DragDropContext>
+      <ToastContainer // Toast container to display toasts
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </Container>
   );
 };

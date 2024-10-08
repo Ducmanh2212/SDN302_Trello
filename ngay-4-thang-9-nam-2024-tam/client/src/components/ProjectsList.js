@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Card, Button, Form, Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { ToastContainer, toast } from "react-toastify"; // Import Toast
+import "react-toastify/dist/ReactToastify.css"; // Import Toast styles
 import "./styles/ProjectsList.css";
 
 const ProjectsList = () => {
@@ -35,6 +37,7 @@ const ProjectsList = () => {
     const [movedProject] = reorderedProjects.splice(source.index, 1);
     reorderedProjects.splice(destination.index, 0, movedProject);
     setProjects(reorderedProjects); // Update state with reordered projects
+    toast.success("Project moved successfully!"); // Show success toast on drag end
   };
 
   const addNewProject = () => {
@@ -50,6 +53,7 @@ const ProjectsList = () => {
     setNewProjectName(""); // Clear input field
     setNewProjectDescription(""); // Clear input field
     setIsAddingProject(false); // Close add project section
+    toast.success(`Project "${newProjectName}" added successfully!`); // Show success toast when project is added
   };
 
   return (
@@ -122,7 +126,7 @@ const ProjectsList = () => {
                     </div>
                   ) : (
                     <Button
-                      variant="outline-primary"
+                      variant="outline-light"
                       onClick={() => setIsAddingProject(true)}
                     >
                       + Add New Project
@@ -134,6 +138,17 @@ const ProjectsList = () => {
           )}
         </Droppable>
       </DragDropContext>
+      <ToastContainer // Toast container to display toasts
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </Container>
   );
 };
