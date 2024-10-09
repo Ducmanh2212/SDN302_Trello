@@ -1,0 +1,45 @@
+.board {
+  background-color: #ffffff; /* Nền trắng cho board */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px; /* Khoảng cách giữa các board */
+
+}
+.container {
+  background-color: #f8f9fa; /* Nền sáng để tạo cảm giác dễ chịu */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-image: url('https://images.pexels.com/photos/2835562/pexels-photo-2835562.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+background-size: cover;
+background-position: center; /* Căn giữa hình ảnh */
+}
+
+.board-title {
+  font-size: 1.5rem;
+  color: #495057;
+  margin-bottom: 10px;
+  
+}
+
+.list {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #dee2e6; /* Đường viền nhẹ cho danh sách */
+  border-radius: 10px;
+  background-color: #f8f9fa; /* Nền sáng cho danh sách */
+}
+
+.card {
+  margin: 5px 0;
+  padding: 10px;
+  border: 1px solid #ced4da; /* Đường viền cho thẻ */
+  border-radius: 5px;
+  background-color: #ffffff; /* Nền trắng cho thẻ */
+  transition: box-shadow 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}

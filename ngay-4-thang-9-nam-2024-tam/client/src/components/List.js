@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import Card from "./Card";
 import { Droppable } from "react-beautiful-dnd";
 import { Button, Form } from "react-bootstrap";
-import "./List.css";
+import { toast } from "react-toastify"; // Import Toast
+import axios from "axios"; // Import Axios
+import "./styles/List.css";
 
 const List = ({ list, setLists, lists }) => {
   const [newCardTitle, setNewCardTitle] = useState("");
@@ -10,23 +12,36 @@ const List = ({ list, setLists, lists }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [listTitle, setListTitle] = useState(list.title);
 
-  const addCard = () => {
+  const addCard = async () => {
     if (newCardTitle.trim() === "") return;
+
     const newCard = {
       id: (list.cards.length + 1).toString(),
       title: newCardTitle,
       description: "",
     };
+
     const updatedList = { ...list, cards: [...list.cards, newCard] };
     setLists(lists.map((l) => (l.id === list.id ? updatedList : l)));
     setNewCardTitle("");
     setIsAddingCard(false);
+    
+    toast.success(`Card "${newCardTitle}" added successfully!`); // Show success toast when card is added
   };
 
-  const handleListTitleChange = () => {
+  const handleListTitleChange = async () => {
     const updatedList = { ...list, title: listTitle };
     setLists(lists.map((l) => (l.id === list.id ? updatedList : l)));
     setIsEditingTitle(false);
+
+    toast.success(`List title changed to "${listTitle}" successfully!`); // Show success toast when list title is updated
+  };
+
+  const deleteCard = (cardId) => {
+    const updatedCards = list.cards.filter((card) => card.id !== cardId);
+    const updatedList = { ...list, cards: updatedCards };
+    setLists(lists.map((l) => (l.id === list.id ? updatedList : l)));
+    toast.success(`Card deleted successfully!`); // Show success toast when card is deleted
   };
 
   return (
@@ -67,6 +82,7 @@ const List = ({ list, setLists, lists }) => {
               list={list}
               setLists={setLists}
               lists={lists}
+              onDelete={deleteCard} // Pass delete function to Card
             />
           ))}
 
@@ -84,7 +100,7 @@ const List = ({ list, setLists, lists }) => {
               />
               <Button
                 variant="outline-success"
-                onClick={addCard}
+                onClick={addCard} // Gọi hàm addCard khi nhấn nút
                 className="mr-2"
               >
                 Add Card
