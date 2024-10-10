@@ -1,0 +1,37 @@
+/* Header.css */
+.navbar {
+  padding: 10px 20px; /* Tăng khoảng cách cho navbar */
+  background-color: #343a40; /* Thay đổi màu nền navbar thành tối */
+  color: #ffffff; /* Đặt màu chữ trắng cho navbar */
+}
+
+.navbar-brand {
+  font-size: 1.5rem; /* Tăng kích thước chữ cho thương hiệu */
+  font-weight: bold; /* Làm đậm chữ thương hiệu */
+}
+
+.search-form {
+  display: flex; /* Sắp xếp các thành phần theo hàng */
+  align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.form-control {
+  width: 200px; /* Đặt chiều rộng cho ô tìm kiếm */
+  border-radius: 20px; /* Bo tròn các góc */
+  padding-right: 30px; /* Thêm khoảng cách cho biểu tượng */
+}
+
+.search-icon {
+  position: absolute; /* Đặt biểu tượng ở vị trí chính xác */
+  right: 10px; /* Đặt khoảng cách bên phải */
+  color: #6c757d; /* Màu sắc cho biểu tượng */
+}
+
+.profile-link {
+  margin-left: 15px; /* Thêm khoảng cách giữa các liên kết */
+  color: #000000; /* Đặt màu chữ trắng cho liên kết profile */
+}
+
+.profile-link i {
+  margin-right: 5px; /* Khoảng cách giữa biểu tượng và chữ */
+}
