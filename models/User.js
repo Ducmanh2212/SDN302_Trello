@@ -1,6 +1,7 @@
-const { Schema, model } = require('mongoose');
+// models/User.js
+const mongoose = require("mongoose");
 
-const UserSchema = new Schema({
+const UserSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -12,17 +13,22 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: function () {
+      return !this.googleId;
+    }, // Password required only if not Google auth
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true,
   },
   avatar: {
     type: String,
   },
-  boards: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'boards',
-    },
-  ],
+  date: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-module.exports = User = model('user', UserSchema);
+module.exports = mongoose.model("User", UserSchema);

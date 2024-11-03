@@ -1,31 +1,80 @@
+// routes/api/auth.js
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcryptjs");
 const auth = require("../../middleware/auth");
-const jwt = require("jsonwebtoken");
-const { check, validationResult } = require("express-validator");
-require("dotenv").config();
-const passport = require("passport");
-
 const User = require("../../models/User");
+const { OAuth2Client } = require("google-auth-library");
+const fetch = require("node-fetch");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const { check, validationResult } = require("express-validator");
 
-// Get authorized user
-router.get("/", auth, async (req, res) => {
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// @route   POST api/auth/google
+// @desc    Authenticate user & get token
+// @access  Public
+router.post("/google", async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
-    res.json(user);
+    const { token } = req.body;
+
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const { name, email, picture, sub: googleId } = ticket.getPayload();
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create new user if doesn't exist
+      user = new User({
+        name,
+        email,
+        googleId,
+        avatar: picture,
+      });
+
+      await user.save();
+    } else if (!user.googleId) {
+      // Link Google account to existing email account
+      user.googleId = googleId;
+      user.avatar = picture;
+      await user.save();
+    }
+
+    // Return JWT token
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: "5 days" },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
+    console.error("Error in Google authentication:", err);
+    res.status(500).send("Server Error");
   }
 });
 
-// Authenticate user & get token
+// @route   POST api/auth/login
+// @desc    Authenticate user & get token
+// @access  Public
 router.post(
-  "/",
+  "/login",
   [
-    check("email", "Email is required").isEmail(),
+    check("email", "Please include a valid email").isEmail(),
     check("password", "Password is required").exists(),
+    check("captcha", "Please complete the captcha").not().isEmpty(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -33,34 +82,55 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, password } = req.body;
+    const { email, password, captcha } = req.body;
 
     try {
-      // See if user exists
-      let user = await User.findOne({ email });
+      // Verify CAPTCHA first
+      const captchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${captcha}`;
+      const captchaRes = await fetch(captchaVerifyUrl, { method: "POST" });
+      const captchaData = await captchaRes.json();
+
+      if (!captchaData.success) {
+        return res.status(400).json({ errors: [{ msg: "Invalid captcha" }] });
+      }
+
+      // Proceed with login
+      const user = await User.findOne({ email });
+
       if (!user) {
+        return res
+          .status(400)
+          .json({ errors: [{ msg: "Invalid Credentials" }] });
+      }
+
+      if (!user.password) {
         return res.status(400).json({
-          errors: [{ msg: "Invalid credentials" }],
+          errors: [
+            {
+              msg: "This email is associated with a Google account. Please use Google Sign-In.",
+            },
+          ],
         });
       }
 
-      // Check for email and password match
       const isMatch = await bcrypt.compare(password, user.password);
+
       if (!isMatch) {
-        return res.status(400).json({
-          errors: [{ msg: "Invalid credentials" }],
-        });
+        return res
+          .status(400)
+          .json({ errors: [{ msg: "Invalid Credentials" }] });
       }
 
-      // Return jsonwebtoken
-      jwt.sign(
-        {
-          user: {
-            id: user.id,
-          },
+      const payload = {
+        user: {
+          id: user.id,
         },
+      };
+
+      jwt.sign(
+        payload,
         process.env.JWT_SECRET,
-        { expiresIn: 360000 },
+        { expiresIn: "5 days" },
         (err, token) => {
           if (err) throw err;
           res.json({ token });
@@ -72,36 +142,5 @@ router.post(
     }
   }
 );
-
-// Route để xác thực người dùng với Google
-router.get(
-  "/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-  })
-);
-
-// Route callback sau khi đăng nhập bằng Google
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/login", // Chuyển hướng nếu thất bại
-  }),
-  (req, res) => {
-    // Nếu thành công, chuyển hướng đến dashboard hoặc trang chủ
-    res.redirect("/dashboard");
-  }
-);
-
-// Route để đăng xuất
-router.get("/logout", (req, res) => {
-  req.logout();
-  res.redirect("/");
-});
-
-// Route để lấy thông tin người dùng đã xác thực
-router.get("/current_user", auth, async (req, res) => {
-  res.json(req.user);
-});
 
 module.exports = router;
