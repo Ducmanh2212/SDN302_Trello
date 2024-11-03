@@ -1,90 +1,108 @@
-// client/src/components/auth/Login.js
-import React, { useState } from "react";
-import { GoogleLogin } from "@react-oauth/google";
-import ReCAPTCHA from "react-google-recaptcha";
-import { connect } from "react-redux";
-import { login, googleLogin } from "../../actions/auth";
-import { setAlert } from "../../actions/alert";
+// https://github.com/mui-org/material-ui/tree/master/docs/src/pages/getting-started/templates/sign-in
 
-const Login = ({ login, googleLogin, setAlert }) => {
+import React, { useState, useEffect } from "react";
+import { Redirect } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "../../actions/auth";
+
+import Button from "@material-ui/core/Button";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import TextField from "@material-ui/core/TextField";
+import Link from "@material-ui/core/Link";
+import Grid from "@material-ui/core/Grid";
+import Box from "@material-ui/core/Box";
+import Typography from "@material-ui/core/Typography";
+import Container from "@material-ui/core/Container";
+
+import Copyright from "../other/Copyright";
+import useStyles from "../../utils/formStyles";
+
+const Login = () => {
+  const classes = useStyles();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [captchaValue, setCaptchaValue] = useState(null);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const dispatch = useDispatch();
 
   const { email, password } = formData;
+
+  useEffect(() => {
+    document.title = "TrelloClone | Sign In";
+  }, []);
 
   const onChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!captchaValue) {
-      setAlert("Please complete the captcha", "danger");
-      return;
-    }
-    login(email, password, captchaValue);
+    dispatch(login(email, password));
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      await googleLogin(credentialResponse.credential);
-    } catch (err) {
-      setAlert("Google login failed", "danger");
-    }
-  };
-
-  const handleGoogleError = () => {
-    setAlert("Google login failed", "danger");
-  };
+  if (isAuthenticated) {
+    return <Redirect to="/dashboard" />;
+  }
 
   return (
-    <div className="login-container">
-      <h1 className="large text-primary">Sign In</h1>
-      <p className="lead">
-        <i className="fas fa-user"></i> Sign Into Your Account
-      </p>
-      <form className="form" onSubmit={onSubmit}>
-        <div className="form-group">
-          <input
-            type="email"
-            placeholder="Email Address"
-            name="email"
-            value={email}
-            onChange={onChange}
+    <Container component="main" maxWidth="xs" className={classes.container}>
+      <CssBaseline />
+      <div className={classes.paper}>
+        <Typography component="h1" variant="h4">
+          TrelloClone
+        </Typography>
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+        <form className={classes.form} onSubmit={(e) => onSubmit(e)}>
+          <TextField
+            variant="outlined"
+            margin="normal"
             required
+            fullWidth
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={(e) => onChange(e)}
           />
-        </div>
-        <div className="form-group">
-          <input
-            type="password"
-            placeholder="Password"
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
             name="password"
+            label="Password"
+            type="password"
+            autoComplete="current-password"
             value={password}
-            onChange={onChange}
-            minLength="6"
+            onChange={(e) => onChange(e)}
           />
-        </div>
-        <div className="form-group">
-          <ReCAPTCHA
-            sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
-            onChange={(value) => setCaptchaValue(value)}
-          />
-        </div>
-        <input type="submit" className="btn btn-primary" value="Login" />
-      </form>
-      <div className="google-login-container">
-        <p className="lead">Or sign in with Google</p>
-        <GoogleLogin
-          clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-          onSuccess={handleGoogleSuccess}
-          onError={handleGoogleError}
-          useOneTap
-        />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+          >
+            Sign In
+          </Button>
+          <Grid container justifyContent="flex-end">
+            <Grid item>
+              <Link href="/register" variant="body2">
+                Don't have an account? Sign Up
+              </Link>
+            </Grid>
+          </Grid>
+        </form>
       </div>
-    </div>
+      <Box mt={8}>
+        <Copyright />
+      </Box>
+    </Container>
   );
 };
 
-export default connect(null, { login, googleLogin, setAlert })(Login);
+export default Login;

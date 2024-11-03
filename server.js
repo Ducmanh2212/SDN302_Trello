@@ -32,7 +32,6 @@ app.use("/api/lists", require("./routes/api/lists"));
 app.use("/api/cards", require("./routes/api/cards"));
 app.use("/api/checklists", require("./routes/api/checklists"));
 app.use("/api/notifications", require("./routes/api/notifications"));
-app.use("/api/verifyCaptcha", require("./routes/api/verifyCaptcha"));
 
 // Serve static assets in production
 if (process.env.NODE_ENV === "production") {
