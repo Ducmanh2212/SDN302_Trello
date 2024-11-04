@@ -1,26 +1,19 @@
-// controllers/AuthController.js
+// controllers/authController.js
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const User = require("../../models/User");
-
-// Helper function for error handling
-const handleError = (res, error, defaultMessage = "Server Error") => {
-  console.error(error.message);
-  return res.status(500).json({ message: defaultMessage });
-};
+require("dotenv").config();
 
 // Get authorized user
-const getUser = async (req, res) => {
+const getAuthorizedUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
     res.json(user);
-  } catch (error) {
-    handleError(res, error, "Failed to retrieve user");
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
   }
 };
 
@@ -64,12 +57,13 @@ const authenticateUser = async (req, res) => {
         res.json({ token });
       }
     );
-  } catch (error) {
-    handleError(res, error, "Failed to authenticate user");
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
   }
 };
 
 module.exports = {
-  getUser,
+  getAuthorizedUser,
   authenticateUser,
 };
