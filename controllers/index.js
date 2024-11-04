@@ -1,4 +1,4 @@
-const MovieController = require("./movie.controller");
+const CardController = require("./card.controller");
 module.exports = {
-  MovieController,
+  CardController,
 };
