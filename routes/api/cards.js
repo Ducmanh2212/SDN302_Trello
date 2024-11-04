@@ -1,44 +1,45 @@
 const express = require("express");
-const router = express.Router();
+const { check } = require("express-validator");
 const auth = require("../../middleware/auth");
 const member = require("../../middleware/member");
-const { check } = require("express-validator");
-const CardController = require("../../controllers/card.controller");
+const { CardController } = require("../../controller/");
 
-// Add a card
+const router = express.Router();
+
+// Endpoint để thêm card mới
 router.post(
   "/",
   [auth, member, [check("title", "Title is required").not().isEmpty()]],
-  CardController.createCard
+  CardController.addCard
 );
 
-// Get all of a list's cards
-router.get("/listCards/:listId", auth, CardController.getAllCardsByListId);
+// Endpoint để lấy danh sách các card của list
+router.get("/listCards/:listId", auth, CardController.getListCards);
 
-// Get a card by id
+// Endpoint để lấy thông tin card theo ID
 router.get("/:id", auth, CardController.getCardById);
 
-// Edit a card's title, description, and/or label
+// Endpoint để chỉnh sửa card
 router.patch("/edit/:id", [auth, member], CardController.editCard);
 
-// Archive/Unarchive a card
+// Endpoint để archive/unarchive một card
 router.patch(
   "/archive/:archive/:id",
   [auth, member],
   CardController.archiveCard
 );
 
-// Move a card
+// Endpoint để di chuyển một card
 router.patch("/move/:id", [auth, member], CardController.moveCard);
 
-// Add/Remove a member
+// Endpoint để thêm/xóa thành viên của card
 router.put(
   "/addMember/:add/:cardId/:userId",
   [auth, member],
-  CardController.addRemoveMember
+  CardController.addOrRemoveMember
 );
 
-// Delete a card
+// Endpoint để xóa một card
 router.delete("/:listId/:id", [auth, member], CardController.deleteCard);
 
 module.exports = router;
