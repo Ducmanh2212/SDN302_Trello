@@ -17,7 +17,6 @@ import Container from "@material-ui/core/Container";
 
 import Copyright from "../other/Copyright";
 import useStyles from "../../utils/formStyles";
-import { Divider } from "@material-ui/core";
 
 const Register = () => {
   const classes = useStyles();
@@ -52,10 +51,6 @@ const Register = () => {
   if (isAuthenticated) {
     return <Redirect to="/dashboard" />;
   }
-
-  const handleLogin = () => {
-    window.open("http://localhost:5000/auth/google");
-  };
 
   return (
     <Container component="main" maxWidth="xs" className={classes.container}>
@@ -135,16 +130,6 @@ const Register = () => {
               </Link>
             </Grid>
           </Grid>
-          <Divider />
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-            onClick={handleLogin}
-          >
-            Login with Google
-          </Button>
         </form>
       </div>
       <Box mt={5}>
